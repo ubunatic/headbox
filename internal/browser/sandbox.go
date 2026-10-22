@@ -31,6 +31,10 @@ type Options struct {
 	Args []string  // extra Chrome flags
 	Log  io.Writer // Chrome's stderr after the ready line; nil discards it
 	ID   string    // HEADBOX_ID set inside the sandbox, lets tests find the tree
+	// ROBinds are host paths bound read-only at the same path, for example the
+	// directory of a local page; they are mounted after the tmpfs mounts, so paths
+	// under /tmp work too.
+	ROBinds []string
 }
 
 // Running is a started browser.
@@ -80,6 +84,9 @@ func BwrapArgs(b *spec.Browser, dir string, opt Options) []string {
 	// The host's fontconfig cache saves about 300 ms per start (ubunatic.com 095).
 	if fc := fontconfigCache(); fc != "" {
 		args = append(args, "--ro-bind-try", fc, sandboxHome+"/.cache/fontconfig")
+	}
+	for _, p := range opt.ROBinds {
+		args = append(args, "--ro-bind", p, p)
 	}
 	args = append(args,
 		"--chdir", sandboxHome,

@@ -15,3 +15,9 @@ home_bytes: 536870912  # $HOME with profile and caches, 512 MiB
 
 # headbox serve stops the browser after this long without a CDP connection.
 serve_idle: 15m
+
+# headbox shot defaults: viewport in CSS pixels (PNG pixels at scale 1) and the time
+# limit for start, page load and capture.
+shot_width: 1280
+shot_height: 800
+shot_timeout: 30s

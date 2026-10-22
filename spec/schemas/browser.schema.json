@@ -4,7 +4,7 @@
   "title": "Pinned headless browser and its sandbox limits",
   "type": "object",
   "additionalProperties": false,
-  "required": ["version", "url_template", "sha256", "tmp_bytes", "shm_bytes", "home_bytes", "serve_idle"],
+  "required": ["version", "url_template", "sha256", "tmp_bytes", "shm_bytes", "home_bytes", "serve_idle", "shot_width", "shot_height", "shot_timeout"],
   "properties": {
     "version": {"type": "string", "pattern": "^[0-9]+(\\.[0-9]+){3}$"},
     "url_template": {"type": "string", "pattern": "^https://.*\\{version\\}.*\\.zip$"},
@@ -12,6 +12,9 @@
     "tmp_bytes": {"type": "integer", "minimum": 1048576},
     "shm_bytes": {"type": "integer", "minimum": 1048576},
     "home_bytes": {"type": "integer", "minimum": 1048576},
-    "serve_idle": {"type": "string", "pattern": "^[0-9]+(s|m|h)$"}
+    "serve_idle": {"type": "string", "pattern": "^[0-9]+(s|m|h)$"},
+    "shot_width": {"type": "integer", "minimum": 1},
+    "shot_height": {"type": "integer", "minimum": 1},
+    "shot_timeout": {"type": "string", "pattern": "^[0-9]+(s|m|h)$"}
   }
 }

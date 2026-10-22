@@ -35,6 +35,17 @@ func TestBwrapArgs(t *testing.T) {
 	}
 }
 
+func TestBwrapArgsROBinds(t *testing.T) {
+	b := spec.MustBrowser()
+	args := BwrapArgs(b, "/x/browser", Options{ROBinds: []string{"/tmp/site"}})
+	joined := strings.Join(args, " ")
+	bind := strings.Index(joined, "--ro-bind /tmp/site /tmp/site")
+	tmpfs := strings.Index(joined, "--tmpfs /tmp")
+	if bind < 0 || bind < tmpfs || bind > strings.Index(joined, " -- ") {
+		t.Errorf("want the bind after the /tmp tmpfs and before the command:\n%s", joined)
+	}
+}
+
 // installedBrowser skips unless bwrap and the pinned browser are present.
 func installedBrowser(t *testing.T) (*spec.Browser, string) {
 	t.Helper()

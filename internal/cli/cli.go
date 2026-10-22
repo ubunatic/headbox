@@ -32,7 +32,7 @@ func New(version string) *cobra.Command {
 		SilenceUsage:  true,
 		SilenceErrors: true,
 	}
-	root.AddCommand(installCmd(), execCmd(), serveCmd(), pathCmd(), versionCmd(version))
+	root.AddCommand(installCmd(), execCmd(), serveCmd(), shotCmd(), pathCmd(), versionCmd(version))
 	return root
 }
 
@@ -75,12 +75,12 @@ func (f *runFlags) register(c *cobra.Command) {
 	c.Flags().StringArrayVar(&f.args, "chrome-arg", nil, "extra Chrome flag (repeatable)")
 }
 
-func (f *runFlags) start(stderr io.Writer) (*browser.Running, error) {
+func (f *runFlags) start(stderr io.Writer, roBinds ...string) (*browser.Running, error) {
 	b, dir, err := load()
 	if err != nil {
 		return nil, err
 	}
-	opt := browser.Options{Port: f.port, Args: f.args, ID: os.Getenv("HEADBOX_ID")}
+	opt := browser.Options{Port: f.port, Args: f.args, ID: os.Getenv("HEADBOX_ID"), ROBinds: roBinds}
 	if f.verbose {
 		opt.Log = stderr
 	}

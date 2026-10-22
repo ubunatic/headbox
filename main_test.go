@@ -3,6 +3,8 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"image/color"
+	"image/png"
 	"net"
 	"os"
 	"os/exec"
@@ -141,4 +143,53 @@ func TestServeStopsWhenIdle(t *testing.T) {
 		t.Fatal("serve did not stop after the idle time")
 	}
 	waitFor(t, "no processes left", func() bool { return len(procsWithID(id)) == 0 })
+}
+
+// TestShotLightAndDark shoots a local page whose background comes from
+// prefers-color-scheme in a relative stylesheet: the page dir under /tmp must be
+// bound into the sandbox, --dark must flip the media feature, and the PNGs land on
+// the host with the requested size.
+func TestShotLightAndDark(t *testing.T) {
+	bin := headbox(t)
+	site := t.TempDir()
+	write := func(name, s string) {
+		if err := os.WriteFile(filepath.Join(site, name), []byte(s), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	write("index.html", `<!doctype html><link rel="stylesheet" href="style.css"><p>headbox</p>`)
+	write("style.css", `html { background: rgb(255, 255, 255) }
+@media (prefers-color-scheme: dark) { html { background: rgb(0, 0, 0) } }`)
+	out := t.TempDir()
+	shots := map[string][]string{
+		"light": {filepath.Join(site, "index.html")},
+		"dark":  {"file://" + filepath.Join(site, "index.html"), "--dark"},
+	}
+	bg := map[string]color.RGBA{}
+	for name, args := range shots {
+		id := newID()
+		file := filepath.Join(out, name+".png")
+		args = append([]string{"shot", "-o", file, "--width", "320", "--height", "200"}, args...)
+		cmd := withID(exec.Command(bin, args...), id)
+		if b, err := cmd.CombinedOutput(); err != nil {
+			t.Fatalf("%s: %v\n%s", name, err, b)
+		}
+		waitFor(t, "no processes left after "+name, func() bool { return len(procsWithID(id)) == 0 })
+		f, err := os.Open(file)
+		if err != nil {
+			t.Fatal(err)
+		}
+		img, err := png.Decode(f)
+		f.Close()
+		if err != nil {
+			t.Fatalf("%s: %v", name, err)
+		}
+		if b := img.Bounds(); b.Dx() != 320 || b.Dy() != 200 {
+			t.Errorf("%s: size %dx%d, want 320x200", name, b.Dx(), b.Dy())
+		}
+		bg[name] = color.RGBAModel.Convert(img.At(300, 190)).(color.RGBA)
+	}
+	if bg["light"] != (color.RGBA{255, 255, 255, 255}) || bg["dark"] != (color.RGBA{0, 0, 0, 255}) {
+		t.Errorf("background light=%v dark=%v, want white and black", bg["light"], bg["dark"])
+	}
 }

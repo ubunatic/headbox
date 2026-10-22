@@ -27,11 +27,16 @@ files are gone.
 | `headbox install [--zip FILE]` | Download the pinned chrome-headless-shell, check its sha256, unpack it to `~/.local/share/headbox/` |
 | `headbox exec [flags] -- CMD` | Start the browser on a free port, run CMD with `CDP_URL`, `HEADBOX_WS_URL`, `HEADBOX_CDP_PORT` set, stop the browser when CMD exits; exits with CMD's code |
 | `headbox serve [--idle 15m]` | Keep a browser for agents; prints the endpoint as shell variables, stops after `--idle` without a CDP connection (0: never), on Ctrl-C or SIGTERM |
+| `headbox shot URL -o FILE.png` | Start the browser, load URL (http(s), `file://` or a local path) after its load event, write a PNG on the host, stop the browser; `--width`/`--height` (default 1280x800), `--dark` emulates `prefers-color-scheme: dark`, `--timeout` (default 30s) |
 | `headbox path` | Print the browser's install dir |
 | `headbox version` | Print the headbox and browser versions |
 
-Flags for `exec` and `serve`: `-p, --port` (default 0, a free port), `-v, --verbose`
+Flags for `exec`, `serve` and `shot`: `-p, --port` (default 0, a free port), `-v, --verbose`
 (Chrome's stderr), `--chrome-arg FLAG` (repeatable).
+
+For a local page, `shot` binds the file's directory read-only into the sandbox, so relative
+CSS and images load. Dark mode is the emulated media feature (CDP
+`Emulation.setEmulatedMedia`), as if the user preferred it; the page is not modified.
 
 ## Examples
 
@@ -42,6 +47,10 @@ headbox exec -- sh -c 'curl -s "$CDP_URL/json/version"'
 # A browser for coding agents, on a fixed port, gone after 30 idle minutes
 headbox serve --port 9333 --idle 30m &
 chrome-devtools-mcp --browserUrl http://127.0.0.1:9333
+
+# Screenshots of a local checkout, light and dark
+headbox shot public/index.html -o light.png
+headbox shot public/index.html -o dark.png --dark --width 390 --height 844
 ```
 
 ## The sandbox
@@ -53,6 +62,7 @@ chrome-devtools-mcp --browserUrl http://127.0.0.1:9333
 | `/usr`, `/lib64`, `/etc` | read-only from the host |
 | `/opt/browser` | the browser dir, read-only |
 | `~/.cache/fontconfig` | the host's font cache, read-only (saves about 300 ms per start) |
+| the page's directory (`shot` with a local file) | read-only, at its host path |
 
 bwrap flags: `--unshare-all --share-net --die-with-parent --new-session --clearenv`. Only the
 network is shared, so pages load as usual and the CDP port is reachable on `127.0.0.1`.

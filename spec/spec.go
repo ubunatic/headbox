@@ -29,6 +29,9 @@ type Browser struct {
 	ShmBytes    int64  `yaml:"shm_bytes"`
 	HomeBytes   int64  `yaml:"home_bytes"`
 	ServeIdle   string `yaml:"serve_idle"`
+	ShotWidth   int    `yaml:"shot_width"`
+	ShotHeight  int    `yaml:"shot_height"`
+	ShotTimeout string `yaml:"shot_timeout"`
 }
 
 // URL is the download URL of the pinned version.
@@ -37,10 +40,15 @@ func (b *Browser) URL() string {
 }
 
 // Idle is ServeIdle parsed.
-func (b *Browser) Idle() time.Duration {
-	d, err := time.ParseDuration(b.ServeIdle)
+func (b *Browser) Idle() time.Duration { return mustDuration("serve_idle", b.ServeIdle) }
+
+// ShotLimit is ShotTimeout parsed.
+func (b *Browser) ShotLimit() time.Duration { return mustDuration("shot_timeout", b.ShotTimeout) }
+
+func mustDuration(key, s string) time.Duration {
+	d, err := time.ParseDuration(s)
 	if err != nil {
-		panic(fmt.Sprintf("spec: serve_idle %q: %v", b.ServeIdle, err))
+		panic(fmt.Sprintf("spec: %s %q: %v", key, s, err))
 	}
 	return d
 }
