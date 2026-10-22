@@ -35,6 +35,26 @@ func TestBwrapArgs(t *testing.T) {
 	}
 }
 
+func TestBwrapArgsNetwork(t *testing.T) {
+	t.Setenv("HTTPS_PROXY", "http://127.0.0.1:3128")
+	t.Setenv("no_proxy", "localhost")
+	t.Setenv("HTTP_PROXY", "")
+	os.Unsetenv("HTTP_PROXY")
+	joined := strings.Join(BwrapArgs(spec.MustBrowser(), "/x/browser", Options{}), " ")
+	for _, want := range []string{
+		"--setenv HTTPS_PROXY http://127.0.0.1:3128",
+		"--setenv no_proxy localhost",
+		"--ro-bind-try /run/systemd/resolve /run/systemd/resolve",
+	} {
+		if !strings.Contains(joined, want) {
+			t.Errorf("args miss %q:\n%s", want, joined)
+		}
+	}
+	if strings.Contains(joined, "HTTP_PROXY ") {
+		t.Errorf("unset HTTP_PROXY must not be passed:\n%s", joined)
+	}
+}
+
 func TestBwrapArgsROBinds(t *testing.T) {
 	b := spec.MustBrowser()
 	args := BwrapArgs(b, "/x/browser", Options{ROBinds: []string{"/tmp/site"}})

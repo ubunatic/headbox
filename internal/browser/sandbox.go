@@ -25,6 +25,12 @@ const readyTimeout = 20 * time.Second
 
 var listening = regexp.MustCompile(`DevTools listening on (ws://127\.0\.0\.1:(\d+)/\S+)`)
 
+// proxyVars are passed into the sandbox when set; everything else is cleared.
+var proxyVars = []string{
+	"HTTP_PROXY", "HTTPS_PROXY", "NO_PROXY", "ALL_PROXY",
+	"http_proxy", "https_proxy", "no_proxy", "all_proxy",
+}
+
 // Options for Start.
 type Options struct {
 	Port int       // CDP port; 0 lets Chrome pick a free one
@@ -71,11 +77,19 @@ func BwrapArgs(b *spec.Browser, dir string, opt Options) []string {
 	if opt.ID != "" {
 		args = append(args, "--setenv", "HEADBOX_ID", opt.ID)
 	}
+	// Chrome reads the proxy from the environment when no desktop config is present.
+	for _, k := range proxyVars {
+		if v, ok := os.LookupEnv(k); ok {
+			args = append(args, "--setenv", k, v)
+		}
+	}
 	args = append(args,
 		"--proc", "/proc", "--dev", "/dev",
 		"--ro-bind", "/usr", "/usr",
 		"--ro-bind-try", "/lib64", "/lib64",
 		"--ro-bind-try", "/etc", "/etc",
+		// /etc/resolv.conf links here with systemd-resolved (Fedora, Ubuntu).
+		"--ro-bind-try", "/run/systemd/resolve", "/run/systemd/resolve",
 		"--ro-bind", dir, "/opt/browser",
 		"--size", strconv.FormatInt(b.TmpBytes, 10), "--tmpfs", "/tmp",
 		"--size", strconv.FormatInt(b.ShmBytes, 10), "--tmpfs", "/dev/shm",

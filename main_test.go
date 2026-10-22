@@ -193,3 +193,28 @@ func TestShotLightAndDark(t *testing.T) {
 		t.Errorf("background light=%v dark=%v, want white and black", bg["light"], bg["dark"])
 	}
 }
+
+// TestShotResolvesNames loads an https page by name: DNS (and the proxy, if the host
+// uses one) must work inside the sandbox. Skips when the host has no network.
+func TestShotResolvesNames(t *testing.T) {
+	bin := headbox(t)
+	const host = "example.com"
+	if _, err := net.LookupHost(host); err != nil {
+		t.Skipf("host cannot resolve %s: %v", host, err)
+	}
+	if c, err := net.DialTimeout("tcp", host+":443", 3*time.Second); err != nil && os.Getenv("HTTPS_PROXY") == "" && os.Getenv("https_proxy") == "" {
+		t.Skipf("host has no route to %s: %v", host, err)
+	} else if err == nil {
+		c.Close()
+	}
+	id := newID()
+	file := filepath.Join(t.TempDir(), "net.png")
+	cmd := withID(exec.Command(bin, "shot", "https://"+host+"/", "-o", file, "--width", "200", "--height", "100"), id)
+	if b, err := cmd.CombinedOutput(); err != nil {
+		t.Fatalf("%v\n%s", err, b)
+	}
+	if _, err := os.Stat(file); err != nil {
+		t.Fatal(err)
+	}
+	waitFor(t, "no processes left", func() bool { return len(procsWithID(id)) == 0 })
+}

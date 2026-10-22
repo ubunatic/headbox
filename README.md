@@ -60,12 +60,15 @@ headbox shot public/index.html -o dark.png --dark --width 390 --height 844
 | `/tmp`, `/dev/shm` | tmpfs, 256 MiB each |
 | `$HOME` (`/home/sandbox`) | tmpfs, 512 MiB: profile and caches |
 | `/usr`, `/lib64`, `/etc` | read-only from the host |
+| `/run/systemd/resolve` | read-only if present, for DNS where `/etc/resolv.conf` links there |
 | `/opt/browser` | the browser dir, read-only |
 | `~/.cache/fontconfig` | the host's font cache, read-only (saves about 300 ms per start) |
 | the page's directory (`shot` with a local file) | read-only, at its host path |
 
 bwrap flags: `--unshare-all --share-net --die-with-parent --new-session --clearenv`. Only the
 network is shared, so pages load as usual and the CDP port is reachable on `127.0.0.1`.
+The environment is cleared except for `HTTP(S)_PROXY`, `NO_PROXY` and `ALL_PROXY` (either
+case), which pass through when set.
 Chrome's own sandbox stays on; it works inside bwrap. Sizes, version, URL and sha256 live in
 [`spec/browser.yaml`](spec/browser.yaml), embedded in the binary.
 
