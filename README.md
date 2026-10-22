@@ -67,6 +67,15 @@ uses about 500 MB RAM with one page open.
 Linux with unprivileged user namespaces and `bwrap` (`dnf install bubblewrap`,
 `apt install bubblewrap`). Go 1.26 or newer to build. macOS is not supported yet.
 
+Release binaries for x86_64 and aarch64 are on
+[Codeberg](https://codeberg.org/ubunatic/headbox/releases). `SHA256SUMS` is signed with
+minisign:
+
+```sh
+minisign -Vm SHA256SUMS -P RWTRssohnfcNDh5mjZtyhk/Wks5P+WGwnQB+ermH1/TJq5fCqCyrVi0c
+sha256sum -c --ignore-missing SHA256SUMS
+```
+
 ## Background
 
 headbox came out of a comparison of nine headless browser setups for tests and agents
