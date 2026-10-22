@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=schemas/browser.schema.json
+
+# The pinned browser and its sandbox limits. Origin: ubunatic.com issue 095 (option C1,
+# chrome-headless-shell in bwrap). Update: bump version, download the zip, put its
+# `sha256sum` here (Chrome for Testing publishes no SHA-256), run `make check`.
+
+version: 156.0.8078.47
+url_template: https://storage.googleapis.com/chrome-for-testing-public/{version}/linux64/chrome-headless-shell-linux64.zip
+sha256: 0d5acc62c3e213f8c87d3c298d66ffcf9a236d12ea4b9f85318bf85dbc279daa
+
+# Size caps of the sandbox's RAM-backed mounts, in bytes (bwrap --size takes no suffixes).
+tmp_bytes: 268435456   # /tmp, 256 MiB
+shm_bytes: 268435456   # /dev/shm, 256 MiB
+home_bytes: 536870912  # $HOME with profile and caches, 512 MiB
+
+# headbox serve stops the browser after this long without a CDP connection.
+serve_idle: 15m

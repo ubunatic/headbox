@@ -13,7 +13,11 @@ and the origin research in ubunatic.com (issues 095, 096).
 
 ## Development Scripts
 
-Run from project root.
+Run from project root. `make help` lists the targets: `make check` (vet, tests, `reuse lint`)
+before every commit, `make install` after changes, `make release` for a version bump in
+`version.yaml`. The browser tests need `headbox install` once; `make test-short` skips them.
+The module path is the vanity URL `ubunatic.com/headbox` (page in the ubunatic.com repo, generated
+from `website/page.yaml`).
 
 ## Background Tasks & Process Hygiene
 

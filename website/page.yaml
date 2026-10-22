@@ -1,0 +1,104 @@
+# SPDX-FileCopyrightText: 2026 Uwe Jugel
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# yaml-language-server: $schema=../spec/schemas/page.schema.json
+
+title: headbox — a headless browser in a box
+kicker: Headless browser launcher
+title_lead: headbox
+title_main: runs a headless browser that leaves nothing behind.
+lead: >-
+  headbox installs a pinned chrome-headless-shell and runs it inside bubblewrap, with every
+  writable path in a size-capped tmpfs. Tests and coding agents talk to it over the Chrome
+  DevTools Protocol; when headbox ends, even by kill -9, the browser and its files are gone.
+logo:
+  src: logo.svg
+  alt: headbox logo
+install: go install ubunatic.com/headbox@latest
+go_package: true
+cta_primary:
+  label: Install
+  href: "#install"
+cta_secondary:
+  label: Browse the source
+  href: https://codeberg.org/ubunatic/headbox
+
+sections:
+  - id: features
+    tag: Features
+    title: One binary, one pinned browser, no leftovers
+    blocks:
+      - cards:
+          - title: Pinned and checked
+            text: "`headbox install` downloads the chrome-headless-shell version pinned in the binary and checks its sha256 before unpacking."
+          - title: Kernel cleanup
+            text: The browser runs in its own PID namespace as a direct child of headbox; when headbox dies, the kernel ends the whole tree.
+          - title: Nothing on disk
+            text: Profile, caches, `/tmp` and `/dev/shm` live in size-capped tmpfs mounts that vanish with the sandbox.
+          - title: Any CDP client
+            text: Puppeteer, Playwright's connectOverCDP, chromedp or chrome-devtools-mcp connect through `CDP_URL`.
+          - title: Fast
+            text: "`headbox exec -- true` takes about 0.2 s, including the browser start."
+          - title: Idle stop
+            text: "`headbox serve` keeps a browser for agents and stops it after a period without CDP connections."
+
+  - id: usage
+    tag: Usage
+    title: Wrap a command or serve a browser
+    blocks:
+      - text: |-
+          ```sh
+          headbox install                  # once: download + sha256-check the pinned browser
+          headbox exec -- node check.mjs   # browser up, CDP_URL set, browser gone when the command ends
+          headbox exec -- sh -c 'curl -s "$CDP_URL/json/version"'
+
+          # a browser for coding agents, on a fixed port, gone after 30 idle minutes
+          headbox serve --port 9333 --idle 30m &
+          chrome-devtools-mcp --browserUrl http://127.0.0.1:9333
+          ```
+      - text: |-
+          | Command | What it does |
+          | --- | --- |
+          | `install [--zip FILE]` | Download the pinned browser, check its sha256, unpack it to `~/.local/share/headbox/` |
+          | `exec -- CMD` | Start the browser, run CMD with `CDP_URL`, `HEADBOX_WS_URL` and `HEADBOX_CDP_PORT`, exit with its code |
+          | `serve [--idle 15m]` | Keep a browser for agents until idle, Ctrl-C or SIGTERM |
+          | `path` | Print the browser's install dir |
+          | `version` | Print the headbox and browser versions |
+
+  - id: sandbox
+    tag: Sandbox
+    title: What the browser sees
+    blocks:
+      - facts:
+          - key: /tmp, /dev/shm
+            value: tmpfs, 256 MiB each.
+          - key: $HOME
+            value: tmpfs, 512 MiB, for the profile and caches.
+          - key: /usr, /lib64, /etc
+            value: Read-only from the host.
+          - key: /opt/browser
+            value: The browser dir, read-only.
+          - key: network
+            value: Shared, so pages load and the CDP port is reachable on 127.0.0.1.
+      - text: >-
+          Chrome's own sandbox stays on inside bwrap. Sizes, browser version, URL and sha256 live in
+          `spec/browser.yaml`, embedded in the binary.
+
+  - id: install
+    tag: Install
+    title: Install with Go
+    blocks:
+      - text: >-
+          Requires Linux with unprivileged user namespaces and `bwrap` (`dnf install bubblewrap`
+          or `apt install bubblewrap`), and Go 1.26 or newer to build. Release binaries for
+          x86_64 and aarch64 are on Codeberg.
+      - text: |-
+          ```sh
+          go install ubunatic.com/headbox@latest
+          headbox install
+          ```
+
+  - id: story
+    tag: Engineering story
+    title: Why a browser needs a box
+    blocks:
+      - text: Read the [headbox engineering story](https://codeberg.org/ubunatic/headbox/src/branch/main/docs/studies/2026-10-22-headbox-story.md), which compares nine headless browser setups and what each leaves behind after kill -9.
