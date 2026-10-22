@@ -1,6 +1,6 @@
 # 002 — shot command for screenshots; uman website shot uses headbox
 
-**Status**: Open
+**Status**: Closed — headbox shot (a8302d7) with emulated prefers-color-scheme, DNS and proxy fix in the sandbox (e3856d6), uman website shot uses headbox when on PATH (uman e99d24a); host verified light/dark desktop/phone shots of live https and local pages, no browser left
 **Priority**: P2 (Medium)
 **Severity**: Minor
 **Category**: Feature

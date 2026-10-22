@@ -6,5 +6,4 @@
 <!-- harnez:begin issues-active-index -->
 | # | File | Title | Status |
 |---|------|-------|--------|
-| 002 | [002-shot-command-for-screenshots-uman-website-shot-uses-headbox.md](002-shot-command-for-screenshots-uman-website-shot-uses-headbox.md) | shot command for screenshots; uman website shot uses headbox | Open |
 <!-- harnez:end issues-active-index -->
