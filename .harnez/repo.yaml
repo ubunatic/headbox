@@ -1,0 +1,22 @@
+version: 1
+issues:
+    tracker: harnez
+    merge_driver: true
+docs:
+    studies: false
+    copies:
+        - golang
+        - gorelease
+        - make
+        - markdown
+        - git
+        - canary
+        - spec
+        - issue-tracking
+        - bash
+        - agentic-loop
+rules:
+    quota: false
+make:
+    scaffold: false
+    container_test: false

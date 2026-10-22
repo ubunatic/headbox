@@ -1,0 +1,3 @@
+# ignore Go binaries
+/headbox
+/dist/
