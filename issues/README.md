@@ -6,5 +6,5 @@
 <!-- harnez:begin issues-active-index -->
 | # | File | Title | Status |
 |---|------|-------|--------|
-| 001 | [001-m1-parity-with-the-ubunatic-scripts.md](001-m1-parity-with-the-ubunatic-scripts.md) | M1 parity with the ubunatic scripts | Open |
+| 002 | [002-shot-command-for-screenshots-uman-website-shot-uses-headbox.md](002-shot-command-for-screenshots-uman-website-shot-uses-headbox.md) | shot command for screenshots; uman website shot uses headbox | Open |
 <!-- harnez:end issues-active-index -->

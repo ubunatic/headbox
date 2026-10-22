@@ -1,6 +1,6 @@
 # 001 — M1 parity with the ubunatic scripts
 
-**Status**: Open
+**Status**: Closed — M1 done and released as v0.1.0 (8861575): install with pinned sha256, exec and serve in bwrap, kill -9 test leaves no process; ready signal is Chrome's 'DevTools listening' stderr line instead of DevToolsActivePort; go install ubunatic.com/headbox@latest verified via proxy and GOPROXY=direct; follow-ups: 002 (shot), ubunatic.com 097 (check-browser)
 **Priority**: P2 (Medium)
 **Severity**: Minor
 **Category**: Feature
